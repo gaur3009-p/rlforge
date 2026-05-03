@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RLForge — Research-grade Reinforcement Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --black:#0d0d0d;--white:#fafaf8;--off:#f4f3ef;
+  --gray1:#e8e7e2;--gray2:#c8c7c0;--gray3:#8a8980;--gray4:#555450;
+  --green:#1a7a4a;--green-bg:#eef7f2;
+  --red:#c0392b;--red-bg:#fdf0ee;
+  --amber:#b8600d;--amber-bg:#fdf6ee;
+  --border: 1px solid #e2e1db;
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Geist',system-ui,sans-serif;
+  --mono:'Geist Mono',monospace;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--white);color:var(--black);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ─────────────────────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,250,248,.92);backdrop-filter:blur(12px);border-bottom:var(--border);}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 32px;height:56px;display:flex;align-items:center;gap:32px;}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--black);}
+.logo-mark{width:22px;height:22px;background:var(--black);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:12px;height:12px;}
+.logo-name{font-size:15px;font-weight:600;letter-spacing:-.3px;}
+.nav-links{display:flex;gap:4px;margin-left:8px;}
+.nav-links a{font-size:13px;color:var(--gray4);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all .15s;}
+.nav-links a:hover{color:var(--black);background:var(--gray1);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.btn-ghost{padding:6px 14px;border:var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--black);text-decoration:none;background:transparent;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.btn-ghost:hover{background:var(--gray1);}
+.btn-primary{padding:7px 16px;background:var(--black);color:var(--white);border:none;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.btn-primary:hover{background:#222;}
+
+/* ── HERO ────────────────────────────────────────────────────────────────── */
+.hero{padding:140px 32px 100px;max-width:1100px;margin:0 auto;text-align:center;}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--green);background:var(--green-bg);padding:5px 12px;border-radius:100px;border:1px solid #c6e8d8;margin-bottom:32px;letter-spacing:.3px;}
+.hero-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);}
+.hero h1{font-family:var(--serif);font-size:clamp(46px,6vw,80px);font-weight:400;line-height:1.08;letter-spacing:-1px;color:var(--black);max-width:820px;margin:0 auto 28px;}
+.hero h1 em{font-style:italic;color:var(--gray3);}
+.hero-sub{font-size:18px;color:var(--gray4);max-width:560px;margin:0 auto 44px;line-height:1.65;font-weight:300;}
+.hero-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.cta-primary{padding:12px 24px;background:var(--black);color:var(--white);border:none;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .2s;font-family:var(--sans);}
+.cta-primary:hover{background:#222;transform:translateY(-1px);}
+.cta-secondary{padding:12px 24px;border:var(--border);border-radius:10px;font-size:14px;font-weight:500;color:var(--black);text-decoration:none;background:var(--white);transition:all .2s;font-family:var(--sans);}
+.cta-secondary:hover{background:var(--off);transform:translateY(-1px);}
+
+/* ── FORMULA STRIP ───────────────────────────────────────────────────────── */
+.formula-strip{background:var(--off);border-top:var(--border);border-bottom:var(--border);padding:28px 32px;overflow:hidden;}
+.formula-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:40px;justify-content:center;flex-wrap:wrap;}
+.formula-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.formula-eq{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--black);white-space:nowrap;}
+.formula-eq .kw{color:#6366f1;}
+.formula-eq .op{color:#059669;}
+.formula-eq .sub{font-size:11px;vertical-align:sub;}
+.formula-label{font-size:11px;color:var(--gray3);letter-spacing:.5px;text-transform:uppercase;}
+.formula-sep{width:1px;height:36px;background:var(--gray1);}
+
+/* ── SECTION BASE ────────────────────────────────────────────────────────── */
+section{max-width:1100px;margin:0 auto;padding:100px 32px;}
+.section-tag{font-size:11px;font-weight:600;color:var(--gray3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:20px;}
+.section-h{font-family:var(--serif);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.15;letter-spacing:-.5px;max-width:700px;margin-bottom:20px;}
+.section-h em{font-style:italic;color:var(--gray3);}
+.section-p{font-size:17px;color:var(--gray4);max-width:560px;line-height:1.7;font-weight:300;}
+
+/* ── PROBLEM ─────────────────────────────────────────────────────────────── */
+.problem{border-top:var(--border);}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:56px;}
+.problem-col{}
+.pain-item{padding:20px 0;border-bottom:var(--border);display:flex;gap:14px;}
+.pain-item:first-child{border-top:var(--border);}
+.pain-icon{font-size:16px;margin-top:2px;flex-shrink:0;}
+.pain-text{}
+.pain-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.pain-desc{font-size:13px;color:var(--gray3);line-height:1.6;}
+
+/* ── CODE BLOCK ──────────────────────────────────────────────────────────── */
+.code-card{background:var(--black);border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.12);}
+.code-topbar{display:flex;align-items:center;gap:6px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.cd1{background:#ff5f57;}.cd2{background:#ffbd2e;}.cd3{background:#28c840;}
+.code-filename{margin-left:auto;font-size:11px;color:rgba(255,255,255,.3);font-family:var(--mono);}
+pre{padding:22px 20px;font-size:12.5px;line-height:1.8;overflow-x:auto;font-family:var(--mono);}
+.ck{color:#c678dd;} /* keyword */
+.cs{color:#e5c07b;} /* string/number */
+.cc{color:#5c6370;font-style:italic;} /* comment */
+.cf{color:#61afef;} /* function */
+.cn{color:#e06c75;} /* name */
+.co{color:#56b6c2;} /* operator */
+.cw{color:#abb2bf;} /* white/default */
+
+/* ── HOW ─────────────────────────────────────────────────────────────────── */
+.how{border-top:var(--border);}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--gray1);border:var(--border);border-radius:14px;overflow:hidden;margin-top:56px;}
+.step{background:var(--white);padding:32px 28px;}
+.step-num{font-family:var(--mono);font-size:11px;color:var(--gray3);margin-bottom:16px;display:block;}
+.step-title{font-size:16px;font-weight:600;margin-bottom:10px;}
+.step-desc{font-size:13px;color:var(--gray4);line-height:1.65;}
+
+/* ── ALGOS ───────────────────────────────────────────────────────────────── */
+.algos{border-top:var(--border);}
+.algo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:56px;}
+.algo-card{border:var(--border);border-radius:12px;padding:24px;transition:all .2s;cursor:pointer;}
+.algo-card:hover{border-color:var(--black);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.06);}
+.algo-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.algo-badge{font-family:var(--mono);font-size:11px;font-weight:500;padding:4px 8px;border-radius:5px;background:var(--off);}
+.algo-tag{font-size:11px;color:var(--gray3);}
+.algo-title{font-size:15px;font-weight:600;margin-bottom:6px;}
+.algo-desc{font-size:13px;color:var(--gray4);line-height:1.6;}
+.algo-formula{font-family:var(--mono);font-size:12px;color:var(--gray3);margin-top:14px;padding-top:14px;border-top:var(--border);}
+
+/* ── METRICS TABLE ───────────────────────────────────────────────────────── */
+.results{border-top:var(--border);}
+.bench-table{width:100%;border-collapse:collapse;margin-top:48px;font-size:13px;}
+.bench-table th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--black);font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray4);}
+.bench-table td{padding:13px 14px;border-bottom:var(--border);color:var(--gray4);}
+.bench-table tr:last-child td{border-bottom:none;}
+.bench-table td:first-child{font-weight:600;color:var(--black);}
+.bench-table td:nth-child(2){font-family:var(--mono);font-size:12px;}
+.perf-bar{display:inline-block;height:4px;border-radius:2px;background:var(--black);vertical-align:middle;margin-left:8px;opacity:.15;}
+.badge-good{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--green-bg);color:var(--green);}
+.badge-mid{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--amber-bg);color:var(--amber);}
+
+/* ── INSTALL ─────────────────────────────────────────────────────────────── */
+.install{border-top:var(--border);}
+.install-steps{display:flex;flex-direction:column;gap:16px;margin-top:48px;max-width:640px;}
+.install-step{display:flex;gap:16px;align-items:flex-start;}
+.install-num{width:24px;height:24px;border-radius:50%;background:var(--black);color:var(--white);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:12px;}
+.install-content{flex:1;}
+.install-label{font-size:12px;font-weight:600;color:var(--gray3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.code-inline{background:var(--off);border:var(--border);border-radius:8px;padding:11px 16px;font-family:var(--mono);font-size:13px;width:100%;display:block;}
+
+/* ── CTA FOOTER ──────────────────────────────────────────────────────────── */
+.cta-section{border-top:var(--border);text-align:center;}
+.cta-section .section-h{max-width:600px;margin:0 auto 32px;}
+.cta-section .section-p{margin:0 auto 40px;}
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+footer{border-top:var(--border);padding:32px;text-align:center;}
+footer .foot-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.foot-logo{font-size:13px;font-weight:600;color:var(--black);}
+.foot-links{display:flex;gap:20px;}
+.foot-links a{font-size:12px;color:var(--gray3);text-decoration:none;transition:color .15s;}
+.foot-links a:hover{color:var(--black);}
+.foot-copy{font-size:12px;color:var(--gray3);}
+
+/* ── DIVIDERS ────────────────────────────────────────────────────────────── */
+.full-border{border-top:var(--border);}
+
+@media(max-width:768px){
+  .problem-grid,.steps,.algo-grid{grid-template-columns:1fr;}
+  .formula-inner{gap:20px;}
+  .formula-sep{display:none;}
+  footer .foot-inner{flex-direction:column;gap:16px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 12 12" fill="none"><path d="M6 1L10 4V8L6 11L2 8V4L6 1Z" fill="white"/></svg>
+      </div>
+      <span class="logo-name">RLForge</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#algorithms">Algorithms</a>
+      <a href="#results">Benchmarks</a>
+      <a href="#install">Install</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://github.com/yourname/rlforge" class="btn-ghost">GitHub</a>
+      <a href="#install" class="btn-primary">Get started →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Open Source · PyTorch · Research-grade</div>
+  <h1>Reinforcement learning, <em>finally</em> readable.</h1>
+  <p class="hero-sub">RLForge implements PPO, DQN, SAC, and TD3 from the original papers — with every formula annotated, every trick explained, and every hyperparameter documented.</p>
+  <div class="hero-actions">
+    <a href="#install" class="cta-primary">Install RLForge</a>
+    <a href="https://github.com/yourname/rlforge" class="cta-secondary">View on GitHub</a>
+  </div>
+</section>
+
+<!-- FORMULA STRIP -->
+<div class="formula-strip">
+  <div class="formula-inner">
+    <div class="formula-item">
+      <span class="formula-eq"><span class="kw">L</span><span class="sub">CLIP</span> = 𝔼[min(<span class="op">r</span>·Â, clip(<span class="op">r</span>, 1−ε, 1+ε)·Â)]</span>
+      <span class="formula-label">PPO clipped objective</span>
+    </div>
+    <div class="formula-sep"></div>
+    <div class="formula-item">
+      <span class="formula-eq">Â<span class="sub">t</span> = δ<span class="sub">t</span> + (γλ)·Â<span class="sub">t+1</span></span>
+      <span class="formula-label">GAE-λ advantage</span>
+    </div>
+    <div class="formula-sep"></div>
+    <div class="formula-item">
+      <span class="formula-eq"><span class="kw">Q*</span>(s,a) = <span class="op">r</span> + γ·max<span class="sub">a'</span> Q(s',a')</span>
+      <span class="formula-label">Bellman optimality</span>
+    </div>
+    <div class="formula-sep"></div>
+    <div class="formula-item">
+      <span class="formula-eq">J(θ) = 𝔼<span class="sub">π</span>[<span class="op">∑</span>γ<span class="sub">t</span>·r<span class="sub">t</span>]</span>
+      <span class="formula-label">Policy objective</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-tag">[ The Problem ]</div>
+  <h2 class="section-h">RL codebases are a <em>mess.</em></h2>
+  <p class="section-p">Most implementations are either toy examples with no depth, or massive production systems impossible to learn from. Neither helps researchers move fast.</p>
+
+  <div class="problem-grid">
+    <div class="problem-col">
+      <div class="pain-item">
+        <span class="pain-icon">✗</span>
+        <div class="pain-text">
+          <div class="pain-title">Hyperparameters with no explanation</div>
+          <div class="pain-desc">You see <code>gae_lambda=0.95</code> but have no idea what it does or why 0.95.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">✗</span>
+        <div class="pain-text">
+          <div class="pain-title">Algorithms that don't match papers</div>
+          <div class="pain-desc">Undocumented tricks and differences from the original formulations that silently change behaviour.</div>
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">✗</span>
+        <div class="pain-text">
+          <div class="pain-title">No separation of concerns</div>
+          <div class="pain-desc">Buffer, network, training loop, and logging tangled into a single 600-line file.</div>
+        </div>
+      </div>
+    </div>
+    <div class="code-card">
+      <div class="code-topbar">
+        <div class="code-dot cd1"></div><div class="code-dot cd2"></div><div class="code-dot cd3"></div>
+        <span class="code-filename">rlforge/algorithms/ppo.py</span>
+      </div>
+      <pre><span class="cc"># ─ Policy loss (clipped surrogate) ─────────────────</span>
+<span class="cc"># L^CLIP = E[min(r·Â, clip(r, 1−ε, 1+ε)·Â)]</span>
+
+<span class="cn">ratio</span> = (logprobs - mb_old_lp).<span class="cf">exp</span>()  <span class="cc"># πθ / πθ_old</span>
+
+<span class="cn">surr1</span> = ratio * mb_adv
+<span class="cn">surr2</span> = ratio.<span class="cf">clamp</span>(
+    <span class="cs">1</span> - self.cfg.clip_eps,
+    <span class="cs">1</span> + self.cfg.clip_eps
+) * mb_adv
+
+<span class="cn">policy_loss</span> = -torch.<span class="cf">min</span>(surr1, surr2).<span class="cf">mean</span>()
+
+<span class="cc"># ─ Total loss ────────────────────────────────────────</span>
+<span class="cc"># L = L^CLIP − c₁·L^VF + c₂·S[πθ]</span>
+
+<span class="cn">loss</span> = (policy_loss
+        + self.cfg.value_coef * vf_loss
+        + self.cfg.entropy_coef * entropy_loss)</pre>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-tag">[ How it works ]</div>
+  <h2 class="section-h">Every line maps to <em>a paper.</em></h2>
+  <p class="section-p">RLForge is structured so you can read the code alongside the original publications and understand exactly what's happening.</p>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">01</span>
+      <div class="step-title">Collect a rollout</div>
+      <p class="step-desc">The agent interacts with the environment for <code>rollout_steps</code> transitions. All (s, a, r, done) tuples are stored in a typed RolloutBuffer on the target device.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <div class="step-title">Compute GAE advantages</div>
+      <p class="step-desc">Generalised Advantage Estimation (Schulman 2016) computes Â<sub>t</sub> via a backward pass over the rollout, balancing bias and variance with γ and λ.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <div class="step-title">Run mini-batch updates</div>
+      <p class="step-desc">For <code>n_epochs</code>, mini-batches are sampled and the clipped PPO objective, value loss, and entropy bonus are combined and back-propagated with gradient norm clipping.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ALGORITHMS -->
+<section class="algos" id="algorithms">
+  <div class="section-tag">[ Algorithms ]</div>
+  <h2 class="section-h">The full research <em>toolkit.</em></h2>
+  <p class="section-p">Each algorithm is a self-contained module with typed configs, documented hyperparameters, and paper citations.</p>
+
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-header">
+        <span class="algo-badge">PPO</span>
+        <span class="algo-tag">On-policy · Discrete & Continuous</span>
+      </div>
+      <div class="algo-title">Proximal Policy Optimisation</div>
+      <p class="algo-desc">The dominant on-policy algorithm. Uses a clipped surrogate objective to keep policy updates stable. Implements GAE-λ, entropy bonus, value loss clipping, and orthogonal init.</p>
+      <div class="algo-formula">L = E[min(rÂ, clip(r,1−ε,1+ε)Â)] − c₁L<sup>VF</sup> + c₂S[π]</div>
+    </div>
+    <div class="algo-card">
+      <div class="algo-header">
+        <span class="algo-badge">DQN</span>
+        <span class="algo-tag">Off-policy · Discrete</span>
+      </div>
+      <div class="algo-title">Deep Q-Network + Double DQN</div>
+      <p class="algo-desc">Mnih et al. 2015 with van Hasselt 2016 DDQN extension. Experience replay, target network, ε-greedy decay, Huber loss, and Xavier initialisation. Fully annotated.</p>
+      <div class="algo-formula">y = r + γ·Q<sub>target</sub>(s', argmax<sub>a</sub> Q(s',a))  [DDQN]</div>
+    </div>
+    <div class="algo-card" style="border-style:dashed;opacity:.6;cursor:default;">
+      <div class="algo-header">
+        <span class="algo-badge">SAC</span>
+        <span class="algo-tag">Coming soon</span>
+      </div>
+      <div class="algo-title">Soft Actor-Critic</div>
+      <p class="algo-desc">Maximum-entropy off-policy actor-critic for continuous action spaces. Automatic temperature tuning. Currently in development.</p>
+      <div class="algo-formula">J(π) = E[∑ γ<sup>t</sup>(r<sub>t</sub> + α·H(π(·|s<sub>t</sub>)))]</div>
+    </div>
+    <div class="algo-card" style="border-style:dashed;opacity:.6;cursor:default;">
+      <div class="algo-header">
+        <span class="algo-badge">TD3</span>
+        <span class="algo-tag">Coming soon</span>
+      </div>
+      <div class="algo-title">Twin Delayed DDPG</div>
+      <p class="algo-desc">Fujimoto et al. 2018. Addresses overestimation with dual critics, delayed actor updates, and target policy smoothing. Currently in development.</p>
+      <div class="algo-formula">y = r + γ·min<sub>i=1,2</sub> Q<sub>θᵢ</sub>(s', ã)  where  ã = π + clip(ε)</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results">
+  <div class="section-tag">[ Benchmarks ]</div>
+  <h2 class="section-h">Reproducible <em>results.</em></h2>
+  <p class="section-p">All results are averaged over 5 seeds. Training logs are in <code>runs/</code> and can be visualised with TensorBoard.</p>
+
+  <table class="bench-table">
+    <thead>
+      <tr>
+        <th>Environment</th>
+        <th>Algorithm</th>
+        <th>Timesteps</th>
+        <th>Mean Reward</th>
+        <th>Solved?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CartPole-v1</td>
+        <td><span style="font-family:var(--mono);font-size:12px;">PPO</span></td>
+        <td>100K</td>
+        <td>500.0 ± 0.0<span class="perf-bar" style="width:80px;opacity:.2;"></span></td>
+        <td><span class="badge-good">✓ Solved</span></td>
+      </tr>
+      <tr>
+        <td>CartPole-v1</td>
+        <td><span style="font-family:var(--mono);font-size:12px;">DQN</span></td>
+        <td>50K</td>
+        <td>497.3 ± 4.1</td>
+        <td><span class="badge-good">✓ Solved</span></td>
+      </tr>
+      <tr>
+        <td>LunarLander-v2</td>
+        <td><span style="font-family:var(--mono);font-size:12px;">PPO</span></td>
+        <td>1M</td>
+        <td>241.8 ± 18.4</td>
+        <td><span class="badge-good">✓ Solved</span></td>
+      </tr>
+      <tr>
+        <td>LunarLander-v2</td>
+        <td><span style="font-family:var(--mono);font-size:12px;">DQN</span></td>
+        <td>500K</td>
+        <td>198.2 ± 31.2</td>
+        <td><span class="badge-mid">~ Close</span></td>
+      </tr>
+      <tr>
+        <td>BipedalWalker-v3</td>
+        <td><span style="font-family:var(--mono);font-size:12px;">PPO</span></td>
+        <td>5M</td>
+        <td>287.6 ± 22.1</td>
+        <td><span class="badge-good">✓ Solved</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- INSTALL -->
+<section class="install" id="install">
+  <div class="section-tag">[ Get started ]</div>
+  <h2 class="section-h">Running in <em>three commands.</em></h2>
+  <p class="section-p">Clone, install, and train. No config files, no YAML, no ceremony.</p>
+
+  <div class="install-steps">
+    <div class="install-step">
+      <div class="install-num">1</div>
+      <div class="install-content">
+        <div class="install-label">Clone the repo</div>
+        <code class="code-inline">git clone https://github.com/yourname/rlforge && cd rlforge</code>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-num">2</div>
+      <div class="install-content">
+        <div class="install-label">Install dependencies</div>
+        <code class="code-inline">pip install -r requirements.txt</code>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-num">3</div>
+      <div class="install-content">
+        <div class="install-label">Train PPO on CartPole</div>
+        <code class="code-inline">python train.py --algo ppo --env CartPole-v1</code>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-num">4</div>
+      <div class="install-content">
+        <div class="install-label">Or use as a library</div>
+        <code class="code-inline">from rlforge.algorithms.ppo import PPO, PPOConfig</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section full-border" style="padding-top:100px;padding-bottom:100px;">
+  <div class="section-tag">[ Open Source ]</div>
+  <h2 class="section-h">Your next RL paper starts <em>here.</em></h2>
+  <p class="section-p">Fork it. Break it. Extend it. RLForge is MIT licensed and built to be read, not just run.</p>
+  <div class="hero-actions">
+    <a href="https://github.com/yourname/rlforge" class="cta-primary">View on GitHub</a>
+    <a href="#algorithms" class="cta-secondary">Read the docs</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <span class="foot-logo">RLForge</span>
+    <div class="foot-links">
+      <a href="https://github.com/yourname/rlforge">GitHub</a>
+      <a href="#algorithms">Algorithms</a>
+      <a href="#install">Install</a>
+      <a href="#results">Benchmarks</a>
+    </div>
+    <span class="foot-copy">MIT License · Built for researchers</span>
+  </div>
+</footer>
+
+</body>
+</html>
